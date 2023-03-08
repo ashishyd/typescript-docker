@@ -11,3 +11,4 @@ tsconfig.tsbuildinfo
 !setup.js
 .history
 .DS_Store
+.npmrc
