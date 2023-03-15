@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HashiCrudApi Unit testing using snapshots Tests the snapshot 1`] = `
+"{
+  "provider": {
+    "hashicups": [
+      {
+        "host": "http://localhost:19090",
+        "password": "test",
+        "username": "test"
+      }
+    ]
+  },
+  "resource": {
+    "hashicups_order": {
+      "orders": {
+        "items": [
+          {
+            "coffee": {
+              "id": 1
+            },
+            "quantity": 1
+          }
+        ],
+        "provider": "hashicups"
+      }
+    }
+  },
+  "terraform": {
+    "required_providers": {
+      "hashicups": {
+        "source": "ashishyd/hashicups",
+        "version": "0.3.3"
+      }
+    }
+  }
+}"
+`;

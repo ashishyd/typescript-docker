@@ -1,89 +1,149 @@
 // Copyright (c) HashiCorp, Inc
 // SPDX-License-Identifier: MPL-2.0
-import "cdktf/lib/testing/adapters/jest"; // Load types for expect matchers
+import { App, TerraformStack, Testing } from 'cdktf';
+import 'cdktf/lib/testing/adapters/jest'; // Load types for expect matchers
+import { Order } from '../.gen/providers/hashicups/order';
 // import { Testing } from "cdktf";
+import { HashicupsProvider } from '../.gen/providers/hashicups/provider/index';
+import { DataHashicupsOrder } from '../.gen/providers/hashicups/data-hashicups-order/index';
+import { DataHashicupsCoffees } from '../.gen/providers/hashicups/data-hashicups-coffees/index';
+import { DataHashicupsIngredients } from '../.gen/providers/hashicups/data-hashicups-ingredients/index';
 
-describe("My CDKTF Application", () => {
+describe('HashiCrudApi', () => {
   // The tests below are example tests, you can find more information at
   // https://cdk.tf/testing
-  it.todo("should be tested");
+  // it.todo("should be tested");
+  let app: App;
+  let stack: TerraformStack;
+  let hashicupsProvider: HashicupsProvider;
+  beforeEach(() => {
+    app = Testing.app();
+    stack = new TerraformStack(app, 'test');
+    hashicupsProvider = new HashicupsProvider(stack, 'hashicups-provider', {
+      username: 'test',
+      password: 'test',
+      host: 'http://localhost:19090',
+    });
+  });
 
-  // // All Unit tests test the synthesised terraform code, it does not create real-world resources
-  // describe("Unit testing using assertions", () => {
-  //   it("should contain a resource", () => {
-  //     // import { Image,Container } from "./.gen/providers/docker"
-  //     expect(
-  //       Testing.synthScope((scope) => {
-  //         new MyApplicationsAbstraction(scope, "my-app", {});
-  //       })
-  //     ).toHaveResource(Container);
+  describe('Unit testing using snapshots', () => {
+    it('Tests the snapshot', () => {
+      new Order(stack, 'orders', {
+        provider: hashicupsProvider,
+        items: [
+          {
+            coffee: {
+              id: 1,
+            },
+            quantity: 1,
+          },
+        ],
+      });
 
-  //     expect(
-  //       Testing.synthScope((scope) => {
-  //         new MyApplicationsAbstraction(scope, "my-app", {});
-  //       })
-  //     ).toHaveResourceWithProperties(Image, { name: "ubuntu:latest" });
-  //   });
-  // });
+      expect(Testing.synth(stack)).toMatchSnapshot();
+    });
 
-  // describe("Unit testing using snapshots", () => {
-  //   it("Tests the snapshot", () => {
-  //     const app = Testing.app();
-  //     const stack = new TerraformStack(app, "test");
+    it('Tests a combination of resources', () => {
+      expect(
+        Testing.synthScope((stack) => {
+          new DataHashicupsOrder(stack, 'order-data', {
+            provider: hashicupsProvider,
+            id: 1,
+          });
 
-  //     new TestProvider(stack, "provider", {
-  //       accessKey: "1",
-  //     });
+          new DataHashicupsCoffees(stack, 'coffees', {
+            provider: hashicupsProvider,
+          });
 
-  //     new TestResource(stack, "test", {
-  //       name: "my-resource",
-  //     });
+          new DataHashicupsIngredients(stack, 'ingredients', {
+            provider: hashicupsProvider,
+            coffeeId: 1,
+          });
+        })
+      ).toMatchInlineSnapshot(`
+"{
+  "data": {
+    "hashicups_coffees": {
+      "coffees": {
+        "provider": "hashicups"
+      }
+    },
+    "hashicups_ingredients": {
+      "ingredients": {
+        "coffee_id": 1,
+        "provider": "hashicups"
+      }
+    },
+    "hashicups_order": {
+      "order-data": {
+        "id": 1,
+        "provider": "hashicups"
+      }
+    }
+  }
+}"
+`);
+    });
+  });
 
-  //     expect(Testing.synth(stack)).toMatchSnapshot();
-  //   });
+  describe('Checking validity', () => {
+    it('check if the produced terraform configuration is valid', () => {
+      new Order(stack, 'orders', {
+        provider: hashicupsProvider,
+        items: [
+          {
+            coffee: {
+              id: 1,
+            },
+            quantity: 1,
+          },
+        ],
+      });
 
-  //   it("Tests a combination of resources", () => {
-  //     expect(
-  //       Testing.synthScope((stack) => {
-  //         new TestDataSource(stack, "test-data-source", {
-  //           name: "foo",
-  //         });
+      new DataHashicupsOrder(stack, 'order-data', {
+        provider: hashicupsProvider,
+        id: 1,
+      });
 
-  //         new TestResource(stack, "test-resource", {
-  //           name: "bar",
-  //         });
-  //       })
-  //     ).toMatchInlineSnapshot();
-  //   });
-  // });
+      new DataHashicupsCoffees(stack, 'coffees', {
+        provider: hashicupsProvider,
+      });
 
-  // describe("Checking validity", () => {
-  //   it("check if the produced terraform configuration is valid", () => {
-  //     const app = Testing.app();
-  //     const stack = new TerraformStack(app, "test");
+      new DataHashicupsIngredients(stack, 'ingredients', {
+        provider: hashicupsProvider,
+        coffeeId: 1,
+      });
+      expect(Testing.fullSynth(stack)).toBeValidTerraform();
+    });
 
-  //     new TestDataSource(stack, "test-data-source", {
-  //       name: "foo",
-  //     });
+    it('check if this can be planned', () => {
+      new Order(stack, 'orders', {
+        provider: hashicupsProvider,
+        items: [
+          {
+            coffee: {
+              id: 1,
+            },
+            quantity: 1,
+          },
+        ],
+      });
 
-  //     new TestResource(stack, "test-resource", {
-  //       name: "bar",
-  //     });
-  //     expect(Testing.fullSynth(app)).toBeValidTerraform();
-  //   });
+      new DataHashicupsOrder(stack, 'order-data', {
+        provider: hashicupsProvider,
+        id: 1,
+      });
 
-  //   it("check if this can be planned", () => {
-  //     const app = Testing.app();
-  //     const stack = new TerraformStack(app, "test");
+      new DataHashicupsCoffees(stack, 'coffees', {
+        provider: hashicupsProvider,
+      });
 
-  //     new TestDataSource(stack, "test-data-source", {
-  //       name: "foo",
-  //     });
-
-  //     new TestResource(stack, "test-resource", {
-  //       name: "bar",
-  //     });
-  //     expect(Testing.fullSynth(app)).toPlanSuccessfully();
-  //   });
-  // });
+      new DataHashicupsIngredients(stack, 'ingredients', {
+        provider: hashicupsProvider,
+        coffeeId: 1,
+      });
+      stack.toTerraform();
+      expect(Testing.fullSynth(stack)).toPlanSuccessfully();
+    });
+  });
 });

@@ -29,16 +29,6 @@ class HashicupsCrudApi extends TerraformStack {
 
     function readDirRecursive(dir: string, level: number = 0): FolderInfo[] {
       const files = fs.readdirSync(dir);
-      // files.forEach(file => {
-      //   const path = `${dir}/${file}`;
-      //   if (fs.statSync(path).isDirectory()) {
-      //     folderInfos.push({ name: file, level });
-      //     readDirRecursive(path);
-      //   } else {
-      //     console.log(path);
-      //     // do something with the file here
-      //   }
-      // });
       for (const file of files) {
         const filePath = path.join(dir, file);
         const stat = fs.statSync(filePath);
@@ -112,8 +102,6 @@ class HashicupsCrudApi extends TerraformStack {
             }),
         };
 
-        console.log(JSON.stringify(orderItems));
-
         new Order(this, path.name, {
           provider: hashicupsProvider,
           ...orderItems,
@@ -153,5 +141,6 @@ class HashicupsCrudApi extends TerraformStack {
 }
 
 const app = new App();
-new HashicupsCrudApi(app, 'typescript-hashicups');
+const api = new HashicupsCrudApi(app, 'typescript-hashicups-dev');
+api.toTerraform();
 app.synth();
