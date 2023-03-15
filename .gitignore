@@ -12,3 +12,7 @@ tsconfig.tsbuildinfo
 .history
 .DS_Store
 .npmrc
+.vscode
+package-lock.json
+*.key
+*.gpg

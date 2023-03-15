@@ -3,7 +3,7 @@
   "app": "npx ts-node main.ts",
   "projectId": "463264bd-58c1-4dd0-8006-77b72efb60a8",
   "sendCrashReports": "true",
-  "terraformProviders": ["hashicups", "docker"],
+  "terraformProviders": ["ashishyd/hashicups"],
   "terraformModules": [],
   "context": {
     "excludeStackIdFromLogicalIds": "true",
