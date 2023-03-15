@@ -1,0 +1,6 @@
+{
+  "items": [
+    { "coffee": { "id": 1 }, "quantity": 2 },
+    { "coffee": { "id": 2 }, "quantity": 6 }
+  ]
+}
