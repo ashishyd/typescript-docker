@@ -3,9 +3,8 @@ import { App, TerraformStack } from 'cdktf';
 import { HashicupsProvider } from './.gen/providers/hashicups/provider';
 import { Order, OrderConfig } from './.gen/providers/hashicups/order';
 import { DataHashicupsOrder } from './.gen/providers/hashicups/data-hashicups-order';
-// import { DataHashicupsCoffees } from './.gen/providers/hashicups/data-hashicups-coffees';
-// import { DataHashicupsIngredients } from './.gen/providers/hashicups/data-hashicups-ingredients';
-// import { orderItemsToTerraform } from './.gen/providers/hashicups/order/index';
+import { DataHashicupsCoffees } from './.gen/providers/hashicups/data-hashicups-coffees';
+import { DataHashicupsIngredients } from './.gen/providers/hashicups/data-hashicups-ingredients';
 
 class HashicupsCrudApi extends TerraformStack {
   constructor(scope: Construct, id: string) {
@@ -13,8 +12,8 @@ class HashicupsCrudApi extends TerraformStack {
 
     // define resources here
     const hashicupsProvider = new HashicupsProvider(this, 'hushicups', {
-      username: 'education',
-      password: 'test123',
+      username: 'ashish',
+      password: 'ashish',
       host: 'http://localhost:19090',
     });
 
@@ -35,9 +34,20 @@ class HashicupsCrudApi extends TerraformStack {
       ],
     };
 
+    const ingredients = new DataHashicupsIngredients(this, 'ingredients', {
+      provider: hashicupsProvider,
+      coffeeId: 1
+    });
+
+    const coffees = new DataHashicupsCoffees(this, 'coffees', {
+      provider: hashicupsProvider,
+      dependsOn: [ingredients],
+    });
+
     const orderData = new DataHashicupsOrder(this, 'order-data', {
       provider: hashicupsProvider,
       id: 1,
+      dependsOn: [coffees],
     });
 
     new Order(this, 'order', {
